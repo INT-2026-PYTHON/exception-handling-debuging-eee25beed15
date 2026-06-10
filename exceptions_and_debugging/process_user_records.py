@@ -137,3 +137,64 @@ Explanation:
 =================================================
 
 """
+def process_records(records):
+    clean_records = []
+    error_log = []
+
+    for index, record in enumerate(records):
+        try:
+            name = record["name"]
+            age = int(record["age"])
+            score = float(record["score"])
+
+        except (KeyError, TypeError) as e:
+            error_log.append((index, type(e).__name__, str(e)))
+
+        except ValueError as e:
+            error_log.append((index, "ValueError", str(e)))
+
+        else:
+            clean_records.append({
+                "name": name,
+                "age": age,
+                "score": score
+            })
+
+    return clean_records, error_log
+
+
+def process_strict(records):
+    try:
+        clean_records, error_log = process_records(records)
+
+        if error_log:
+            raise RuntimeError(
+                f"{len(error_log)} record(s) failed to process"
+            )
+
+        return clean_records
+
+    except RuntimeError:
+        raise
+
+
+# Example
+records = [
+    {"name": "Ram", "age": "20", "score": "85.5"},
+    {"name": "Shyam", "age": "abc", "score": "90"},
+    {"name": "Mohan", "score": "75"},
+    "invalid record"
+]
+
+clean_records, error_log = process_records(records)
+
+print("Clean Records:")
+print(clean_records)
+
+print("\nError Log:")
+print(error_log)
+
+try:
+    process_strict(records)
+except RuntimeError as e:
+    print("\nRuntimeError:", e)
